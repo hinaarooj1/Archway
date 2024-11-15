@@ -178,7 +178,7 @@ exports.createTransaction = catchAsyncErrors(async (req, res, next) => {
 ${note}
   
 Best Regards,
-BLOCKGUARD TEAM`;
+ARCHWAY TEAM`;
     // 
     let sendEmailError = await sendEmail(user.email, subject, text);
 

@@ -66,7 +66,7 @@ exports.RegisterUser = catchAsyncErrors(async (req, res, next) => {
     token: crypto.randomBytes(32).toString("hex"),
   }).save();
   let subject = `Email Verification link`;
-  const url = `https://blockguard.io/users/${createUser._id}/verify/${token.token}`;
+  const url = `https://archway-hk.com/admin/users/${createUser._id}/verify/${token.token}`;
   let text = `To activate your account, please click the following link:
 
 ${url}
@@ -204,7 +204,7 @@ exports.loginUser = catchAsyncErrors(async (req, res, next) => {
 
       //
       let subject = `Email Verification link`;
-      const url = `https://blockguard.io/users/${UserAuth._id}/verify/${token.token}`;
+      const url = `https://archway-hk.com/admin/users/${UserAuth._id}/verify/${token.token}`;
       let text = `To activate your account, please click the following link: 
 
 ${url}
@@ -221,7 +221,7 @@ The link will be expired after 2 hours`;
 
       //
       let subject = `Email Verification link`;
-      const url = `https://blockguard.io/users/${UserAuth._id}/verify/${token.token}`;
+      const url = `https://archway-hk.com/admin/users/${UserAuth._id}/verify/${token.token}`;
       let text = `To activate your account, please click the following link: 
 
 ${url}

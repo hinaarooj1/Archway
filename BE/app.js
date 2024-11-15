@@ -13,8 +13,8 @@ app.use(cookieParser());
 
 const cron = require("node-cron");
 let ALLOWED_ORIGINS = [
-  "https://blockguard.io",
-  "https://www.blockguard.io",
+  "https://www.archway-hk.com",
+  "https://archway-hk.com",
 
   "http://localhost:3000",
   "http://localhost:3001",

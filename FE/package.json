@@ -87,7 +87,7 @@
   },
   "build": {
     "extends": null,
-    "appId": "blockguard.io",
+    "appId": "archway-hk.com",
     "files": [
       "dist/**/*",
       "build/**/*",
