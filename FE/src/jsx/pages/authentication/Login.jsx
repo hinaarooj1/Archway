@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { connect, useDispatch } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 
 import { toast } from "react-toastify";
-import LogoNew from "../../../assets/images/logo.png";
+import LogoNew from "../../../assets/images/img/Logo - Copy.png";
 import { loginApi } from "../../../Api/Service";
 import { useSignIn, useIsAuthenticated, useAuthUser } from "react-auth-kit";
 import { useAuth } from "../../../store/auth";
-import './Login.css'
+
 
 import { IMAGES } from '../../constant/theme';
 
@@ -19,6 +19,7 @@ function Login(props) {
 	const isAuthenticated = useIsAuthenticated();
 	const authUser = useAuthUser();
 	const navigate = useNavigate();
+	const location = useLocation();
 
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
@@ -93,17 +94,20 @@ function Login(props) {
 				storeTokenInLs(updateHeader.token);
 				toast.dismiss();
 				toast.success(updateHeader.msg);
+				console.log('location.state?.from: ', location.state?.from);
 				if (updateHeader.user.role === "user") {
+					const redirectTo = location.state?.from || '/dashboard';
+					navigate(redirectTo);
 
-					navigate("/dashboard");
 
 					return;
 				} else if (
 					updateHeader.user.role === "admin" ||
 					updateHeader.user.role === "subadmin"
 				) {
-
-					navigate("/admin/dashboard");
+					const redirectTo = location.state?.from || '/admin/dashboard';
+					navigate(redirectTo);
+					// navigate("/admin/dashboard");
 					return
 				}
 			} else if (updateHeader.success === true && updateHeader.link === true) {
@@ -160,9 +164,7 @@ function Login(props) {
 						<p className="mb-4"> Login with social media or your credentials</p>
 					</div>
 					<div className="aside-image position-relative" style={{ backgroundImage: `url(${IMAGES.BgPic2})` }}>
-						<img className="img1 move-1" src={IMAGES.BgPic3} alt="" />
-						<img className="img2 move-2" src={IMAGES.BgPic4} alt="" />
-						<img className="img3 move-3" src={IMAGES.BgPic5} alt="" />
+
 					</div>
 				</div>
 				<div className="container flex-row-fluid d-flex flex-column justify-content-center position-relative overflow-hidden p-7 mx-auto">

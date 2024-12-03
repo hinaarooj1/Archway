@@ -21,10 +21,14 @@ import Coin5 from '../../../assets/images/new/5.png';
 import Coin6 from '../../../assets/images/new/6.png';
 import Coin7 from '../../../assets/images/new/7.png';
 import Coin8 from '../../../assets/images/new/8.png';
+import EurIco from '../../../assets/images/new/euro.svg';
+import SolIco from '../../../assets/images/new/solana.png';
 const coinLogos = {
     bnb: BNBcoin, // Replace with actual local path
     xrp: Coin1, // Replace with actual local path
     dogecoin: Coin2, // Replace with actual local path
+    euro: EurIco, // Replace with actual local path
+    solana: SolIco, // Replace with actual local path
     toncoin: Coin3, // Replace with actual local path
     chainlink: Coin4, // Replace with actual local path
     polkadot: Coin5, // Replace with actual local path
@@ -39,6 +43,8 @@ const getCoinPrice = (coinSymbol) => {
         case "bnb": return 210.25; // Example price
         case "xrp": return 0.5086; // Example price
         case "doge": return 0.1163; // Example price
+        case "eur": return 1.08; // Example price
+        case "sol": return 245.01; // Example price
         case "ton": return 5.76; // Example price
         case "link": return 12.52; // Example price
         case "dot": return 4.76; // Example price
@@ -212,6 +218,8 @@ const Orders = () => {
             case "bnb": return 210.25; // Example price
             case "xrp": return 0.5086; // Example price
             case "doge": return 0.1163; // Example price
+            case "eur": return 1.08; // Example price
+            case "sol": return 245.01;
             case "ton": return 5.76; // Example price
             case "link": return 12.52; // Example price
             case "dot": return 4.76; // Example price
@@ -350,6 +358,10 @@ const Orders = () => {
         } else if (depositName === "xrp") { // XRP
             depositBalance = NewValue;
         } else if (depositName === "dogecoin") { // Dogecoin
+            depositBalance = NewValue;
+        } else if (depositName === "euro") { // Dogecoin
+            depositBalance = NewValue;
+        } else if (depositName === "solana") { // Dogecoin
             depositBalance = NewValue;
         } else if (depositName === "toncoin") { // Toncoin
             depositBalance = NewValue;
@@ -559,6 +571,7 @@ const Orders = () => {
                 setisDisable(false);
             }
         } else if (e == "bank") {
+            console.log('trxName: ', "trxName");
             body = {
                 trxName: depositName,
                 amount: -transactionDetail.amountMinus,
@@ -575,8 +588,31 @@ const Orders = () => {
                 toast.error("Please select a Payment Method");
                 return;
             }
-            setConfirmationPopup(true);
-            setModal3(false);
+            try {
+
+                setisDisable(true);
+                let id = authUser().user._id;
+
+                const newTransaction = await createUserTransactionApi(id, body);
+
+                if (newTransaction.success) {
+                    setSelectedPayment(null);
+                    toast.dismiss();
+                    toast.success(newTransaction.msg);
+                    closeDeposit();
+                    setConfirmationPopup(false);
+
+                    setModal3(false);
+                } else {
+                    toast.dismiss();
+                    toast.error(newTransaction.msg);
+                }
+            } catch (error) {
+                toast.dismiss();
+                toast.error(error);
+            } finally {
+                setisDisable(false);
+            }
         }
 
         // Trigger the confirmation popup instead of API call
@@ -704,9 +740,20 @@ const Orders = () => {
                                                 <td className='tleft'>
                                                     <span className="font-w600 fs-14"><img className='img30' src={Bitcoin} alt="" />Bitcoin</span>
                                                 </td>
-                                                <td className="fs-14 font-w400"> {`${btcBalance.toFixed(8)} (${(
-                                                    btcBalance * liveBtc
-                                                ).toFixed(2)} USD)`}</td>
+                                                <td className="fs-14 font-w400">
+                                                    {`${btcBalance.toFixed(8)} (${(() => {
+                                                        // Calculate the amount in USD
+                                                        const amountInUSD = btcBalance * liveBtc;
+
+                                                        // Check if the currency is EUR and convert
+                                                        if (isUser.currency === "EUR") {
+                                                            // Convert USD to EUR
+                                                            const amountInEUR = amountInUSD * 0.92;
+                                                            return `${amountInEUR.toFixed(2)} EUR`; // Display in EUR
+                                                        } else {
+                                                            return `${amountInUSD.toFixed(2)} USD`; // Display in USD
+                                                        }
+                                                    })()})`}</td>
                                                 <td>
                                                     <Button
                                                         onClick={btcDepositMinus} className="me-2" variant="primary btn-rounded">
@@ -784,9 +831,22 @@ const Orders = () => {
                                                 <td className='tleft'>
                                                     <span className="font-w600 fs-14"><img className='img30' src={EthLogo} alt="" />Ethereum</span>
                                                 </td>
-                                                <td className="fs-14 font-w400">       {`${ethBalance.toFixed(8)} (${(
-                                                    ethBalance * 2640
-                                                ).toFixed(2)} USD)`}</td>
+                                                <td className="fs-14 font-w400">
+
+                                                    {`${ethBalance.toFixed(8)} (${(() => {
+                                                        // Calculate the amount in USD
+                                                        const amountInUSD = ethBalance * 2640;
+
+                                                        // Check if the currency is EUR and convert
+                                                        if (isUser.currency === "EUR") {
+                                                            // Convert USD to EUR
+                                                            const amountInEUR = amountInUSD * 0.92;
+                                                            return `${amountInEUR.toFixed(2)} EUR`; // Display in EUR
+                                                        } else {
+                                                            return `${amountInUSD.toFixed(2)} USD`; // Display in USD
+                                                        }
+                                                    })()})`}
+                                                </td>
                                                 <td>
                                                     <Button
                                                         onClick={ethDepositMinus} className="me-2" variant="primary btn-rounded">
@@ -866,9 +926,22 @@ const Orders = () => {
                                                 <td className='tleft'>
                                                     <span className="font-w600 fs-14"><img className='img30' src={UsdtLogo} alt="" />USDT</span>
                                                 </td>
-                                                <td className="fs-14 font-w400">  {`${usdtBalance.toFixed(
-                                                    8
-                                                )} (${usdtBalance.toFixed(2)} USD)`}</td>
+                                                <td className="fs-14 font-w400">
+
+                                                    {`${usdtBalance.toFixed(8)} (${(() => {
+                                                        // Calculate the amount in USD
+                                                        const amountInUSD = usdtBalance;
+
+                                                        // Check if the currency is EUR and convert
+                                                        if (isUser.currency === "EUR") {
+                                                            // Convert USD to EUR
+                                                            const amountInEUR = amountInUSD * 0.92;
+                                                            return `${amountInEUR.toFixed(2)} EUR`; // Display in EUR
+                                                        } else {
+                                                            return `${amountInUSD.toFixed(2)} USD`; // Display in USD
+                                                        }
+                                                    })()})`}
+                                                </td>
                                                 <td>
                                                     <Button
                                                         onClick={tetherDepositMinus} className="me-2" variant="primary btn-rounded">
@@ -966,7 +1039,19 @@ const Orders = () => {
                                                                 <td className="fs-14 font-w400">
 
                                                                     {
-                                                                        `${totalBalance.toFixed(8)} (${(totalBalance * getCoinPrice(coin.coinSymbol)).toFixed(2)} USD)` // Function to get coin price
+                                                                        `${totalBalance.toFixed(8)} (${(() => {
+                                                                            // Calculate the balance in USD using getCoinPrice function
+                                                                            const amountInUSD = totalBalance * getCoinPrice(coin.coinSymbol);
+
+                                                                            // Check if the currency is EUR and convert
+                                                                            if (isUser.currency === "EUR") {
+                                                                                // Convert USD to EUR
+                                                                                const amountInEUR = amountInUSD * 0.92;
+                                                                                return `${amountInEUR.toFixed(2)} EUR`; // Display in EUR
+                                                                            } else {
+                                                                                return `${amountInUSD.toFixed(2)} USD`; // Display in USD
+                                                                            }
+                                                                        })()})`
                                                                     }
                                                                 </td>
                                                                 <td>
@@ -1191,6 +1276,28 @@ const Orders = () => {
                                         >
                                             Available: {NewValue} DOGE
                                         </p>
+                                    ) : depositName === "euro" ? (
+                                        <p
+                                            onClick={() =>
+                                                settransactionDetail({
+                                                    amountMinus: NewValue,
+                                                })
+                                            }
+                                            className="text-muted-500 cursor-pointer dark:text-muted-400 mt-2 font-sans text-sm"
+                                        >
+                                            Available: {NewValue} EUR
+                                        </p>
+                                    ) : depositName === "solana" ? (
+                                        <p
+                                            onClick={() =>
+                                                settransactionDetail({
+                                                    amountMinus: NewValue,
+                                                })
+                                            }
+                                            className="text-muted-500 cursor-pointer dark:text-muted-400 mt-2 font-sans text-sm"
+                                        >
+                                            Available: {NewValue} SOL
+                                        </p>
                                     ) : depositName === "toncoin" ? (
                                         <p
                                             onClick={() =>
@@ -1279,20 +1386,25 @@ const Orders = () => {
                                         <Form.Group className="mt-3">
                                             <Form.Control as="select" onChange={handlePaymentSelection}>
                                                 <option>Select a Payment Method</option>
-                                                {isUser.payments.map((item, index) => (
-                                                    <option key={index}>
-                                                        {item.type === "bank" ? (
-                                                            item.bank.accountName
-                                                        ) : (
-                                                            <>
-                                                                <span className="text-uppercase">
-                                                                    {item.card.cardCategory.toUpperCase()}
-                                                                </span>{" "}
-                                                                *{item.card.cardNumber.slice(-4)}
-                                                            </>
-                                                        )}
-                                                    </option>
-                                                ))}
+                                                {
+                                                    isUser && isUser.payments && isUser.payments.length > 0 ? (
+                                                        isUser.payments.map((item, index) => (
+                                                            <option key={index}>
+                                                                {item.type === "bank" ? (
+                                                                    item.bank.accountName
+                                                                ) : (
+                                                                    <>
+                                                                        <span className="text-uppercase">
+                                                                            {item.card.cardCategory.toUpperCase()}
+                                                                        </span>{" "}
+                                                                        *{item.card.cardNumber.slice(-4)}
+                                                                    </>
+                                                                )}
+                                                            </option>
+                                                        ))) : (
+                                                        <option disabled>No payment methods available</option>
+                                                    )
+                                                }
                                             </Form.Control>
                                         </Form.Group>
                                     </>
@@ -1338,25 +1450,63 @@ const Orders = () => {
                                             {depositName === "bitcoin" ? (
                                                 <span>
                                                     BTC {transactionDetail.amountMinus} ($
-                                                    {`${(transactionDetail.amountMinus * liveBtc).toFixed(2)}`})
+                                                    {(() => {
+                                                        const amountInUSD = transactionDetail.amountMinus * liveBtc;
+                                                        if (isUser.currency === "EUR") {
+                                                            const amountInEUR = amountInUSD * 0.92;
+                                                            return `${amountInEUR.toFixed(2)} EUR`;
+                                                        } else {
+                                                            return `${amountInUSD.toFixed(2)} USD`;
+                                                        }
+                                                    })()}
+                                                    )
                                                 </span>
                                             ) : depositName === "ethereum" ? (
                                                 <span>
                                                     ETH {transactionDetail.amountMinus} ($
-                                                    {`${(transactionDetail.amountMinus * 2640).toFixed(2)}`})
+                                                    {(() => {
+                                                        const amountInUSD = transactionDetail.amountMinus * 2640;
+                                                        if (isUser.currency === "EUR") {
+                                                            const amountInEUR = amountInUSD * 0.92;
+                                                            return `${amountInEUR.toFixed(2)} EUR`;
+                                                        } else {
+                                                            return `${amountInUSD.toFixed(2)} USD`;
+                                                        }
+                                                    })()}
+                                                    )
                                                 </span>
                                             ) : depositName === "tether" ? (
                                                 <span>
                                                     USDT {transactionDetail.amountMinus} ($
-                                                    {`${(transactionDetail.amountMinus * 1).toFixed(2)}`})
+                                                    {(() => {
+                                                        const amountInUSD = transactionDetail.amountMinus * 1;
+                                                        if (isUser.currency === "EUR") {
+                                                            const amountInEUR = amountInUSD * 0.92;
+                                                            return `${amountInEUR.toFixed(2)} EUR`;
+                                                        } else {
+                                                            return `${amountInUSD.toFixed(2)} USD`;
+                                                        }
+                                                    })()}
+                                                    )
                                                 </span>
                                             ) : (
-                                                <span className='uppercase'>
+                                                <span className="uppercase">
                                                     <span style={{ textTransform: "uppercase" }}>{newCoin.coinSymbol} </span>
                                                     {transactionDetail.amountMinus} ($
-                                                    {`${(transactionDetail.amountMinus * getCoinPrice(newCoin.coinSymbol)).toFixed(2)}`})
+                                                    {(() => {
+                                                        const amountInUSD =
+                                                            transactionDetail.amountMinus * getCoinPrice(newCoin.coinSymbol);
+                                                        if (isUser.currency === "EUR") {
+                                                            const amountInEUR = amountInUSD * 0.92;
+                                                            return `${amountInEUR.toFixed(2)} EUR`;
+                                                        } else {
+                                                            return `${amountInUSD.toFixed(2)} USD`;
+                                                        }
+                                                    })()}
+                                                    )
                                                 </span>
                                             )}
+
                                         </p>
                                     </Col>
                                 </Row>

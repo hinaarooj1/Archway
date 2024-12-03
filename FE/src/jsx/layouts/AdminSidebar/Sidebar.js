@@ -5,7 +5,6 @@ import Log from "../../../assets/images/img/log.jpg";
 import { useAuthUser, useSignOut } from "react-auth-kit";
 import { logoutApi } from "../../../Api/Service";
 import { toast } from "react-toastify";
-import './Sidebar.css'
 const SideBar = (props) => {
   let signOut = useSignOut();
 
@@ -89,7 +88,7 @@ const SideBar = (props) => {
         <div className="flex h-16 w-16 items-center ">
           <NavLink
             to="/"
-            className="router-link-active router-link-exact-active extad flex items-center justify-center"
+            className="router-link-active router-link-exact-active flex items-center justify-center"
             aria-current="page"
           >
             <img src={logo_300x57_1} />

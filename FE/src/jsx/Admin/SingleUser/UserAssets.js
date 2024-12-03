@@ -209,6 +209,8 @@ const UserAssets = () => {
       case "bnb": return 210.25; // Example price
       case "xrp": return 0.5086; // Example price
       case "doge": return 0.1163; // Example price
+      case "sol": return 245.01; // Example price
+      case "eur": return 1.08; // Example price
       case "ton": return 5.76; // Example price
       case "link": return 12.52; // Example price
       case "dot": return 4.76; // Example price
@@ -391,6 +393,7 @@ const UserAssets = () => {
       }
 
       let body = {
+
         trxName: depositName,
         amount: finalAmount,
         txId: transactionDetail.txId,
@@ -406,10 +409,10 @@ const UserAssets = () => {
       if (
         !body.trxName ||
         !body.amount ||
-        !body.txId ||
         !body.status ||
-        !body.fromAddress ||
-        !body.type
+        !body.type ||
+
+        (depositName !== "Euro" && (!body.txId || !body.fromAddress))
       ) {
         toast.dismiss();
         toast.error("Fill all the required fields");
@@ -2060,9 +2063,9 @@ const UserAssets = () => {
                                           />
                                         </svg>
                                       </div>
-                                      <span className="text-danger-600 mt-1 block font-sans text-[0.65rem] font-medium leading-none">
+                                      {depositName === "Euro" ? "" : <span className="text-danger-600 mt-1 block font-sans text-[0.65rem] font-medium leading-none">
                                         Txid is required
-                                      </span>
+                                      </span>}
                                     </div>
                                   </div>
                                 </div>
@@ -2106,9 +2109,10 @@ const UserAssets = () => {
                                           />
                                         </svg>
                                       </div>
-                                      <span className="text-danger-600 mt-1 block font-sans text-[0.65rem] font-medium leading-none">
+                                      {depositName === "Euro" ? "" : <span className="text-danger-600 mt-1 block font-sans text-[0.65rem] font-medium leading-none">
                                         From Address is required
-                                      </span>
+                                      </span>}
+
                                       {/**/}
                                     </div>
                                   </div>
@@ -2710,9 +2714,10 @@ const UserAssets = () => {
                                           />
                                         </svg>
                                       </div>
-                                      <span className="text-danger-600 mt-1 block font-sans text-[0.65rem] font-medium leading-none">
+                                      {depositName === "Euro" ? "" : <span className="text-danger-600 mt-1 block font-sans text-[0.65rem] font-medium leading-none">
                                         Txid is required
-                                      </span>
+                                      </span>}
+
                                     </div>
                                   </div>
                                 </div>
@@ -2756,9 +2761,10 @@ const UserAssets = () => {
                                           />
                                         </svg>
                                       </div>
-                                      <span className="text-danger-600 mt-1 block font-sans text-[0.65rem] font-medium leading-none">
+                                      {depositName === "Euro" ? "" : <span className="text-danger-600 mt-1 block font-sans text-[0.65rem] font-medium leading-none">
                                         From Address is required
-                                      </span>
+                                      </span>}
+
                                       {/**/}
                                     </div>
                                   </div>

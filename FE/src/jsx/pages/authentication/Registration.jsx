@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 
-import LogoNew from "../../../assets/images/logo.png";
+import LogoNew from "../../../assets/images/img/Logo - Copy.png";
 
 function Register(props) {
   const [isloading, setisloading] = useState(false);
@@ -236,7 +236,7 @@ function Register(props) {
             <div className="card mb-0 h-auto">
               <div className="card-body">
                 <div className="text-center mb-2">
-                  <Link to="/" className="logo">
+                  <Link to="/">
                     <img src={LogoNew} alt="" />
                   </Link>
                 </div>

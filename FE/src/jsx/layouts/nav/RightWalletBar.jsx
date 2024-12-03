@@ -16,6 +16,8 @@ import Coin8 from '../../../assets/images/new/8.png';
 import Dash from "../../../assets/images/svg/dash.svg"
 import Eth from "../../../assets/images/svg/eth.svg"
 import usdtLogo from "../../../assets/images/img/usdt-logo.svg";
+import EurIco from "../../../assets/images/new/euro.svg";
+import SolIco from "../../../assets/images/new/solana.png";
 import redArrow from "../../../assets/images/img/re-arriw.svg";
 import DropdownBlog from '../../elements/DropdownBlog';
 import { SVGICON } from '../../constant/theme';
@@ -53,6 +55,9 @@ const coinLogos = {
     bnb: BNBcoin, // Replace with actual local path
     xrp: Coin1, // Replace with actual local path
     dogecoin: Coin2, // Replace with actual local path
+    euro: EurIco, // Replace with actual local path
+    solana: SolIco, // Replace with actual local path
+    // Replace with actual local path
     toncoin: Coin3, // Replace with actual local path
     chainlink: Coin4, // Replace with actual local path
     polkadot: Coin5, // Replace with actual local path
@@ -103,7 +108,7 @@ const RightWalletBar = () => {
 
             if (userCoins.success) {
                 setIsUser(userCoins.signleUser);
-
+                getCoins(authUser().user, userCoins.signleUser);
                 return;
             } else {
                 toast.dismiss();
@@ -120,7 +125,7 @@ const RightWalletBar = () => {
 
 
 
-    const getCoins = async (data) => {
+    const getCoins = async (data, isUserd) => {
         let id = data._id;
         try {
             const userCoins = await getCoinsUserApi(id);
@@ -162,6 +167,8 @@ const RightWalletBar = () => {
                 const bnbBalance = calculateBalance("bnb", 210.25); // Lowercased "BNB"
                 const xrpBalance = calculateBalance("xrp", 0.5086); // Lowercased "XRP"
                 const dogeBalance = calculateBalance("dogecoin", 0.1163); // Lowercased "Dogecoin"
+                const eurBalance = calculateBalance("euro", 1.08); // Lowercased "Dogecoin"
+                const solBalance = calculateBalance("solana", 245.01); // Lowercased "Dogecoin"
                 const tonBalance = calculateBalance("toncoin", 5.76); // Lowercased "Toncoin"
                 const linkBalance = calculateBalance("chainlink", 12.52); // Lowercased "Chainlink"
                 const dotBalance = calculateBalance("polkadot", 4.76); // Lowercased "Polkadot"
@@ -170,13 +177,17 @@ const RightWalletBar = () => {
                 const trxBalance = calculateBalance("tron", 0.1531); // Lowercased "Tron"
 
 
-                const totalBalanceUSD = (
+                const conversionRate = 0.92; // Conversion rate from USD to EUR
+
+                const totalBalanceInUSD = (
                     btcBalance +
                     ethBalance +
                     usdtBalance +
                     bnbBalance +
                     xrpBalance +
                     dogeBalance +
+                    eurBalance +
+                    solBalance +
                     tonBalance +
                     linkBalance +
                     dotBalance +
@@ -185,20 +196,29 @@ const RightWalletBar = () => {
                     trxBalance
                 ).toFixed(2);
 
-                const [integerPart, fractionalPart] = totalBalanceUSD.split(".");
+                // Convert to EUR if user currency is EUR
+                console.log('isUser.currency: ', isUserd);
+                const totalBalance = isUserd.currency === "EUR"
+                    ? (totalBalanceInUSD * conversionRate).toFixed(2)
+                    : totalBalanceInUSD;
 
+                const [integerPart, fractionalPart] = totalBalance.split(".");
+
+                // Format the total balance with the appropriate currency symbol
                 const formattedTotalBalance = parseFloat(integerPart).toLocaleString(
                     "en-US",
                     {
                         style: "currency",
-                        currency: "USD",
+                        currency: isUserd.currency === "EUR" ? "EUR" : "USD",
                         minimumFractionDigits: 0,
                         maximumFractionDigits: 0,
                     }
                 );
 
+                // Set the fractional part and formatted total balance in state
                 setfractionBalance(fractionalPart);
                 settotalBalance(formattedTotalBalance);
+
 
                 // Pending Transactions
                 const calculatePendingBalance = (coinSymbol, coinPrice) => {
@@ -219,6 +239,8 @@ const RightWalletBar = () => {
                 const bnbPending = calculatePendingBalance("bnb", 210.25);
                 const xrpPending = calculatePendingBalance("xrp", 0.5086);
                 const dogePending = calculatePendingBalance("doge", 0.1163);
+                const solPending = calculatePendingBalance("sol", 245.01);
+                const eurPending = calculatePendingBalance("eur", 1.08);
                 const tonPending = calculatePendingBalance("ton", 5.76);
                 const linkPending = calculatePendingBalance("link", 12.52);
                 const dotPending = calculatePendingBalance("dot", 4.76);
@@ -233,6 +255,8 @@ const RightWalletBar = () => {
                     bnbPending +
                     xrpPending +
                     dogePending +
+                    solPending +
+                    eurPending +
                     tonPending +
                     linkPending +
                     dotPending +
@@ -268,8 +292,9 @@ const RightWalletBar = () => {
     };
     useEffect(() => {
         if (authUser().user.role === "user") {
+            getsignUser()
             setAdmin(authUser().user);
-            getCoins(authUser().user);
+            // getCoins(authUser().user);
 
             return;
         } else if (authUser().user.role === "admin") {
@@ -325,6 +350,7 @@ const RightWalletBar = () => {
                                 <div className="mb-3">
                                     <h5 className="fs-14 font-w400 mb-0">My Portfolio</h5>
                                     <h4 className="fs-24 font-w600">{totalBalance === null ? "..." : totalBalance === 0 ? 0 : `${totalBalance}`}</h4>
+
                                 </div>
                                 <div className="text-end mb-2">
                                     <span>
@@ -371,88 +397,75 @@ const RightWalletBar = () => {
                                             <tbody>
                                                 {UserTransactions && UserTransactions.length > 0 ? (
                                                     <>
-                                                        {
-                                                            UserTransactions.filter(
-                                                                (transaction) => !transaction.isHidden
-                                                            ).map((Transaction, index) => (
-                                                                <tr key={index} className='widn'>
-                                                                    <td className="text-start">
-                                                                        <img style={{ borderRadius: "100%" }} src={coinLogos[Transaction.trxName.toLowerCase()]} alt={`${Transaction.trxName} logo`} className="coin-logo me-2 img-btc" />
-                                                                    </td>
-                                                                    <td>     {Transaction.type === "withdraw" ? "Withdraw" : "Deposit"}</td>
-                                                                    <td className="text-end">   {`$ ${(() => {
-                                                                        switch (Transaction.trxName.toLowerCase()) {
-                                                                            case "bitcoin":
-                                                                                return (Transaction.amount * liveBtc).toLocaleString(undefined, {
-                                                                                    minimumFractionDigits: 2,
-                                                                                    maximumFractionDigits: 2,
-                                                                                });
-                                                                            case "ethereum":
-                                                                                return (Transaction.amount * 2640).toLocaleString(undefined, {
-                                                                                    minimumFractionDigits: 2,
-                                                                                    maximumFractionDigits: 2,
-                                                                                });
-                                                                            case "tether":
-                                                                                return Transaction.amount.toLocaleString(undefined, {
-                                                                                    minimumFractionDigits: 2,
-                                                                                    maximumFractionDigits: 2,
-                                                                                });
-                                                                            case "bnb":
-                                                                                return (Transaction.amount * 210.25).toLocaleString(undefined, {
-                                                                                    minimumFractionDigits: 2,
-                                                                                    maximumFractionDigits: 2,
-                                                                                });
-                                                                            case "xrp":
-                                                                                return (Transaction.amount * 0.5086).toLocaleString(undefined, {
-                                                                                    minimumFractionDigits: 2,
-                                                                                    maximumFractionDigits: 2,
-                                                                                });
-                                                                            case "dogecoin":
-                                                                                return (Transaction.amount * 0.1163).toLocaleString(undefined, {
-                                                                                    minimumFractionDigits: 2,
-                                                                                    maximumFractionDigits: 2,
-                                                                                });
-                                                                            case "toncoin":
-                                                                                return (Transaction.amount * 5.76).toLocaleString(undefined, {
-                                                                                    minimumFractionDigits: 2,
-                                                                                    maximumFractionDigits: 2,
-                                                                                });
-                                                                            case "chainlink":
-                                                                                return (Transaction.amount * 12.52).toLocaleString(undefined, {
-                                                                                    minimumFractionDigits: 2,
-                                                                                    maximumFractionDigits: 2,
-                                                                                });
-                                                                            case "polkadot":
-                                                                                return (Transaction.amount * 4.76).toLocaleString(undefined, {
-                                                                                    minimumFractionDigits: 2,
-                                                                                    maximumFractionDigits: 2,
-                                                                                });
-                                                                            case "near protocol":
-                                                                                return (Transaction.amount * 5.59).toLocaleString(undefined, {
-                                                                                    minimumFractionDigits: 2,
-                                                                                    maximumFractionDigits: 2,
-                                                                                });
-                                                                            case "usd coin":
-                                                                                return (Transaction.amount * 0.99).toLocaleString(undefined, {
-                                                                                    minimumFractionDigits: 2,
-                                                                                    maximumFractionDigits: 2,
-                                                                                });
-                                                                            case "tron":
-                                                                                return (Transaction.amount * 0.1531).toLocaleString(undefined, {
-                                                                                    minimumFractionDigits: 2,
-                                                                                    maximumFractionDigits: 2,
-                                                                                });
-                                                                            default:
-                                                                                return (0).toLocaleString(undefined, {
-                                                                                    minimumFractionDigits: 2,
-                                                                                    maximumFractionDigits: 2,
-                                                                                });
+                                                        {UserTransactions.filter(transaction => !transaction.isHidden).map((Transaction, index) => (
+                                                            <tr key={index} className='widn'>
+                                                                <td className="text-start">
+                                                                    <img
+                                                                        style={{ borderRadius: "100%" }}
+                                                                        src={coinLogos[Transaction.trxName.toLowerCase()]}
+                                                                        alt={`${Transaction.trxName} logo`}
+                                                                        className="coin-logo me-2 img-btc"
+                                                                    />
+                                                                </td>
+                                                                <td>{Transaction.type === "withdraw" ? "Withdraw" : "Deposit"}</td>
+                                                                <td className="text-end">
+                                                                    {`${isUser.currency === "EUR" ? "€" : "$"} ${(() => {
+                                                                        let convertedAmount;
+                                                                        // Perform conversion only if the user's currency is EUR
+                                                                        const amountInUSD = (() => {
+                                                                            switch (Transaction.trxName.toLowerCase()) {
+                                                                                case "bitcoin":
+                                                                                    return Transaction.amount * liveBtc;
+                                                                                case "ethereum":
+                                                                                    return Transaction.amount * 2640;
+                                                                                case "tether":
+                                                                                    return Transaction.amount;
+                                                                                case "bnb":
+                                                                                    return Transaction.amount * 210.25;
+                                                                                case "xrp":
+                                                                                    return Transaction.amount * 0.5086;
+                                                                                case "dogecoin":
+                                                                                    return Transaction.amount * 0.5086;
+                                                                                case "euro":
+                                                                                    return Transaction.amount * 1.08;
+                                                                                case "solana":
+                                                                                    return Transaction.amount * 245.01;
+                                                                                case "toncoin":
+                                                                                    return Transaction.amount * 5.76;
+                                                                                case "chainlink":
+                                                                                    return Transaction.amount * 12.52;
+                                                                                case "polkadot":
+                                                                                    return Transaction.amount * 4.76;
+                                                                                case "near protocol":
+                                                                                    return Transaction.amount * 5.59;
+                                                                                case "usd coin":
+                                                                                    return Transaction.amount * 0.99;
+                                                                                case "tron":
+                                                                                    return Transaction.amount * 0.1531;
+                                                                                default:
+                                                                                    return 0;
+                                                                            }
+                                                                        })();
+
+                                                                        // If the currency is EUR, convert to EUR by dividing by 0.92
+                                                                        if (isUser.currency === "EUR") {
+                                                                            convertedAmount = (amountInUSD * 0.92).toLocaleString(undefined, {
+                                                                                minimumFractionDigits: 2,
+                                                                                maximumFractionDigits: 2,
+                                                                            });
+                                                                        } else {
+                                                                            // Otherwise, keep in USD
+                                                                            convertedAmount = amountInUSD.toLocaleString(undefined, {
+                                                                                minimumFractionDigits: 2,
+                                                                                maximumFractionDigits: 2,
+                                                                            });
                                                                         }
+
+                                                                        return convertedAmount;
                                                                     })()}`}
-                                                                    </td>
-                                                                </tr>
-                                                            ))
-                                                        }
+                                                                </td>
+                                                            </tr>
+                                                        ))}
                                                     </>
                                                 ) : <h5 className='text-center d-flex items-center' style={{ textAlign: "center" }}>No Transaction Found</h5>}
 

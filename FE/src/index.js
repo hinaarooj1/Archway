@@ -10,8 +10,7 @@ import { AuthProvider } from "./store/auth";
 import Router from "./config/router";
 import "react-toastify/dist/ReactToastify.css";
 import ThemeContext from "./context/ThemeContext";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
+
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
